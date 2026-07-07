@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ticket-assistant-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ticket_assistant
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ticket_mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./src/main/resources:/app-schema:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 8s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: .
+    container_name: ticket-assistant-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_URL: jdbc:mysql://mysql:3306/ticket_assistant?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
+      SQL_INIT_MODE: always
+      MAX_REQUESTS_PER_MINUTE: 120
+      TICKET_API_KEY:
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+      QWEATHER_API_KEY: ${QWEATHER_API_KEY}
+      QWEATHER_API_HOST: ${QWEATHER_API_HOST:-}
+      TZ: Asia/Shanghai
+    ports:
+      - "19999:19999"
+
+  frontend:
+    build: ./frontend
+    container_name: ticket-assistant-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  ticket_mysql_data:

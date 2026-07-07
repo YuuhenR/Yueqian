@@ -1,0 +1,50 @@
+server:
+  port: 19999
+
+spring:
+  application:
+    name: ticket-assistant
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/ticket_assistant?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:root}
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
+      schema-locations: classpath:schema.sql
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+ticket:
+  assistant:
+    cors-allowed-origins:
+      - http://127.0.0.1:19999
+      - http://localhost:19999
+      - http://127.0.0.1:8080
+      - http://localhost:8080
+    security:
+      api-key: ${TICKET_API_KEY:}
+      max-requests-per-minute: ${MAX_REQUESTS_PER_MINUTE:90}
+      jwt-secret: ${JWT_SECRET:rail-ticket-assistant-demo-secret-change-me-please-2026}
+      jwt-expire-minutes: ${JWT_EXPIRE_MINUTES:720}
+    ai:
+      provider: deepseek
+      deepseek-api-key: ${DEEPSEEK_API_KEY:}
+      deepseek-base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      model-name: ${DEEPSEEK_MODEL:deepseek-chat}
+    weather:
+      qweather-api-key: ${QWEATHER_API_KEY:}
+      qweather-api-host: ${QWEATHER_API_HOST:}
+      geo-base-url: ${QWEATHER_GEO_BASE_URL:https://geoapi.qweather.com}
+      weather-base-url: ${QWEATHER_WEATHER_BASE_URL:https://devapi.qweather.com}
+    railway:
+      base-url: ${RAILWAY_12306_BASE_URL:https://kyfw.12306.cn}
+      station-url: ${RAILWAY_12306_STATION_URL:https://kyfw.12306.cn/otn/resources/js/framework/station_name.js}
