@@ -37,6 +37,18 @@ public class ChinaRailwayClient {
     private static final Pattern STATION_ROW = Pattern.compile("@([^|]+)\\|([^|]+)\\|([^|]+)\\|([^|]*)\\|([^|]*)\\|([^|]*)\\|([^|]*)\\|([^|]*)\\|");
     private static final int MAX_CANDIDATES_PER_SIDE = 8;
     private static final int MAX_FUZZY_QUERIES = 12;
+    /*
+     * Reserved third-party 12306 fallback, intentionally disabled.
+     *
+     * apihz sample:
+     * https://cn.apihz.cn/api/12306/api.php?id=88888888&key=88888888&add=绵阳&end=上海&y=2025&m=6&d=30&ck=
+     *
+     * The project currently prefers official 12306 endpoints below because the
+     * apihz public key is rate-limited, may require a private developer key or
+     * 12306 cookie, and is less controllable for production demonstrations.
+     * If enabled later, wrap it behind the same TrainOption model as a fallback
+     * provider after official queries fail.
+     */
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
